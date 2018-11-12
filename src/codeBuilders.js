@@ -1,0 +1,60 @@
+const { PLUGIN_NAME } = require("./constants");
+
+exports.buildSrcReplaceCode = function(methodName, shouldSupressErrors = false) {
+  return [
+    "function(originalSrc) {",
+    "try {",
+    `  if (typeof ${methodName} !== "function") {`,
+    `    throw new Error("${PLUGIN_NAME}: '${methodName}' is not a function or not available at runtime. See https://github.com/ywmail/webpack-dynamic-hash#troubleshooting");`,
+    "  }",
+    `  var newSrc = ${methodName}(originalSrc);`,
+    "  if (!newSrc || typeof newSrc !== 'string') {",
+    `    throw new Error("${PLUGIN_NAME}: '${methodName}' does not return string. See https://github.com/ywmail/webpack-dynamic-hash#troubleshooting");`,
+    "  }",
+    "  return newSrc;",
+    "} catch (e) {",
+    `  if (!${shouldSupressErrors}) {`,
+    "    console.error(e);",
+    "  }",
+    `  return originalSrc;`,
+    "}",
+    "}"
+  ].join("\n");
+};
+
+exports.buildStringCode = function(pathString) {
+  return `return "${pathString}";`;
+};
+
+exports.buildMethodCode = function(methodName, defaultPublicPath, shouldSupressErrors = false) {
+  return [
+    "try {",
+    `  if (typeof ${methodName} !== "function") {`,
+    `    throw new Error("${PLUGIN_NAME}: '${methodName}' is not a function or not available at runtime. See https://github.com/ywmail/webpack-dynamic-hash#troubleshooting");`,
+    "  }",
+    `  return ${methodName}();`,
+    "} catch (e) {",
+    `  if (!${shouldSupressErrors}) {`,
+    "    console.error(e);",
+    "  }",
+    `  return "${defaultPublicPath.replace(/\\/g, "\\\\")}";`,
+    "}"
+  ].join("\n");
+};
+
+
+exports.buildVariableCode = function (variableName, defaultPublicPath, shouldSupressErrors = false) {
+  return [
+    "try {",
+    `  if (typeof ${variableName} !== "string") {`,
+    `    throw new Error("${PLUGIN_NAME}: '${variableName}' is not a string or not available at runtime. See https://github.com/ywmail/webpack-dynamic-hash#troubleshooting");`,
+    "  }",
+    `  return ${variableName};`,
+    "} catch (e) {",
+    `  if (!${shouldSupressErrors}) {`,
+    "    console.error(e);",
+    "  }",
+    `  return "${defaultPublicPath.replace(/\\/g, "\\\\")}";`,
+    "}"
+  ].join("\n");
+};
