@@ -1,5 +1,5 @@
 {
-  "name": "webpack-dynamic-hash",
+  "name": "@ywmail-pack/webpack-dynamic-hash",
   "version": "0.0.1",
   "description": "Webpack plugin that allows to configure dynamic hash",
   "main": "index.js",

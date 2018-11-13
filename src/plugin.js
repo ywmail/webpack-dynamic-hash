@@ -37,21 +37,28 @@ class WebpackDynamicHash {
 
   apply(compiler) {
     getOrSetHookMethod(compiler, 'compiler')(this.compilerHook.bind(this));
-    compiler.hooks.compilation.tap(
-      PLUGIN_NAME,
-      (compilation, {
-        normalModuleFactory
-      }) => {
-        const mainTemplate = compilation.mainTemplate;
-        mainTemplate.hooks.currentHash.tap(
-          PLUGIN_NAME,
-          (_, length) => {
-            return `${this.options.variableName}`;
-          }
-        );
+    if (this.options.variableName || this.options.methodName) {
+      compiler.hooks.compilation.tap(
+        PLUGIN_NAME,
+        (compilation, {
+          normalModuleFactory
+        }) => {
+          const mainTemplate = compilation.mainTemplate;
+          mainTemplate.hooks.currentHash.tap(
+            PLUGIN_NAME,
+            (_, length) => {
+              if (this.options.methodName) {
+                return `${this.options.methodName}()`;
+              } else if (this.options.variableName) {
+                return `${this.options.variableName}`;
+              }
+            }
+          );
 
-      }
-    );
+        }
+      );
+    }
+
   }
 
   compilationHook({
@@ -71,9 +78,9 @@ class WebpackDynamicHash {
       PLUGIN_NAME,
       (_, length) => {
         if (this.options.methodName) {
-          return `${this.options.variableName}`;
-        } else if () {
           return `${this.options.methodName}()`;
+        } else if (this.options.variableName) {
+          return `${this.options.variableName}`;
         }
       }
     );
